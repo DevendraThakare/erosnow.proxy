@@ -1,0 +1,52 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true
+    },
+    "parser": "vue-eslint-parser",
+    "parserOptions": {
+        "parser": "babel-eslint",
+        "ecmaVersion": 7,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "experimentalDecorators": true
+        }
+    },
+    "extends": [
+        "plugin:vue/recommended",
+        "eslint:recommended",
+        "standard",
+        "prettier",
+        "prettier/standard",
+        "prettier/vue"
+    ],
+    "plugins": ["vue", "prettier"],
+    "rules": {
+        "prettier/prettier": [
+            "error",
+            {
+                "singleQuote": true
+            }
+        ],
+        "comma-dangle": ["error", "never"],
+        "quotes": ["error", "single"],
+        "semi": ["error", "never"],
+        "import/no-extraneous-dependencies": [
+            "error",
+            {
+                "devDependencies": true
+            }
+        ],
+        "no-unused-vars": "error",
+        "no-console": "error",
+        "arrow-parens": ["error", "as-needed"],
+        "prefer-promise-reject-errors": "off"
+    },
+    "globals": {
+        "_USER_AGENT_": true,
+        "_SERVER_": true,
+        "workbox": true,
+        "jwPlayer": true
+    }
+}

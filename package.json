@@ -1,0 +1,16 @@
+{
+  "name": "erosnow.proxy",
+  "version": "1.0.0",
+  "main": "server.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node --inspect=7000 --harmony server",
+    "start:prod": "node --harmony server"
+  },
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "http-proxy": "^1.17.0",
+    "oauth-1.0a": "^2.2.5",
+    "request": "^2.88.0"
+  }
+}
