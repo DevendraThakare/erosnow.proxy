@@ -20,61 +20,36 @@ const oauth = OAuth({
 })
 
 // TODO: Remove HardCoded token
-const token = {
-    key: '0d5e96040fd071a6282a44be1ad0c7ec05c6d30c6',
-    secret: '6dea50d55bef78fe5f66bb19f578cfc4'
-}
+// const token = {
+//     key: '0d5e96040fd071a6282a44be1ad0c7ec05c6d30c6',
+//     secret: '6dea50d55bef78fe5f66bb19f578cfc4'
+// }
 
 const onRequest = (clientRequest, clientResponse) => {
     console.log('serve: ' + clientRequest.url)
     const address = url.parse(clientRequest.url, true)
-    const queryString = address.query
+    // const queryString = address.query
     const requestUrl = `${config.apiBaseUrl}${clientRequest.url}`
     const requestData = {
         url: requestUrl,
         method: clientRequest.method
         // qs: queryString
     }
-    const proxy = request(
-        {
-            url: requestData.url,
-            method: requestData.method,
-            // ...requestData,
-            // qs: queryString,
-            headers: oauth.toHeader(oauth.authorize(requestData, token))
-        },
-        (error, proxyResponse) => {
-            let responseBody
-            if (error) {
-                clientResponse.writeHead(500)
-                responseBody = {
-                    status: 500,
-                    msg: 'Proxy Error'
-                }
-            } else {
-                clientResponse.writeHead(
-                    proxyResponse.statusCode,
-                    proxyResponse.headers
-                )
-                responseBody = proxyResponse.body
-                // proxyResponse.pipe(
-                //     clientResponse,
-                //     {
-                //         end: true
-                //     }
-                // )
-            }
-            clientResponse.write(responseBody)
-            clientResponse.end()
-        }
-    )
-
-    clientRequest.pipe(
-        proxy,
-        {
-            end: true
-        }
-    )
+    request({
+        ...requestData,
+        // headers: oauth.toHeader(oauth.authorize(requestData, token))
+        headers: oauth.toHeader(oauth.authorize(requestData))
+        // qs: queryString,
+        // headers: {
+        //     // ...clientRequest.headers,
+        //     Authorization: oauth.toHeader(oauth.authorize(requestData, token))
+        //         .Authorization
+        // }
+    })
+        .on('error', function(e) {
+            clientResponse.end(e)
+        })
+        .pipe(clientResponse)
 }
 const port = process.env.PORT || 4000
 http.createServer(onRequest).listen(port)
