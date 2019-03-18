@@ -1,6 +1,5 @@
 const http = require('http')
 const request = require('request')
-const url = require('url')
 const OAuth = require('oauth-1.0a')
 const crypto = require('crypto')
 const config = require('./config')
@@ -20,41 +19,61 @@ const oauth = OAuth({
 })
 
 const onRequest = (clientRequest, clientResponse) => {
+    console.log(`serving: ${clientRequest.method} + ${clientRequest.url}`)
     clientResponse.setHeader('Access-Control-Allow-Origin', '*')
     clientResponse.setHeader(
         'Access-Control-Allow-Methods',
-        'GET, POST, OPTIONS, PUT, PATCH, DELETE'
-    ) // If needed
+        'GET, POST, OPTIONS'
+    )
+    // If needed
     clientResponse.setHeader(
         'Access-Control-Allow-Headers',
         'X-Requested-With,content-type'
-    ) // If needed
-    clientResponse.setHeader('Access-Control-Allow-Credentials', true) // If needed
+    )
+    // If needed
+    clientResponse.setHeader('Access-Control-Allow-Credentials', true)
 
     // intercept OPTIONS method
     if (clientRequest.method == 'OPTIONS') {
         clientResponse.statusCode = 200
         clientResponse.end()
     } else {
-        console.log('serve: ' + clientRequest.url)
-        const address = url.parse(clientRequest.url, true)
-        // const queryString = address.query
-        const requestUrl = `${config.apiBaseUrl}${clientRequest.url}`
-        const requestData = {
-            url: requestUrl,
-            method: clientRequest.method
-            // qs: queryString
-        }
-        request({
-            ...requestData,
-            // headers: oauth.toHeader(oauth.authorize(requestData, token))
-            headers: oauth.toHeader(oauth.authorize(requestData))
-        })
-            .on('error', function(e) {
-                clientResponse.end(e)
+        if (clientRequest.method === 'POST' || clientRequest.method === 'PUT') {
+            clientRequest.body = ''
+
+            clientRequest.addListener('data', function(chunk) {
+                clientRequest.body += chunk
             })
-            .pipe(clientResponse)
+
+            clientRequest.addListener('end', function() {
+                forwardRequest(clientRequest, clientResponse)
+            })
+        } else {
+            forwardRequest(clientRequest, clientResponse)
+        }
     }
 }
+
+const forwardRequest = (clientRequest, clientResponse) => {
+    const requestUrl = `${config.apiBaseUrl}${clientRequest.url}`
+    const requestData = {
+        url: requestUrl,
+        method: clientRequest.method
+    }
+    const requestOptions = {
+        ...requestData,
+        // headers: oauth.toHeader(oauth.authorize(requestData, token))
+        headers: oauth.toHeader(oauth.authorize(requestData))
+    }
+    if(clientRequest.body){
+        requestOptions.form = JSON.parse(clientRequest.body)
+    }
+    request(requestOptions)
+        .on('error', function(e) {
+            clientResponse.end(e)
+        })
+        .pipe(clientResponse)
+}
+
 const port = process.env.PORT || 4000
 http.createServer(onRequest).listen(port)

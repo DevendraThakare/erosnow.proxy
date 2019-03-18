@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "crypto": "^1.0.1",
-    "http-proxy": "^1.17.0",
     "oauth-1.0a": "^2.2.5",
     "request": "^2.88.0"
   }
