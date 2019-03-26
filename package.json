@@ -8,6 +8,7 @@
     "start:prod": "node --harmony server"
   },
   "dependencies": {
+    "cookies": "^0.7.3",
     "crypto": "^1.0.1",
     "oauth-1.0a": "^2.2.5",
     "request": "^2.88.0"
