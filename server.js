@@ -22,7 +22,6 @@ const oauth = OAuth({
 const debug = process.env.NODE_ENV !== 'production'
 
 const onRequest = (clientRequest, clientResponse) => {
-    console.log(`serving: ${clientRequest.method} + ${clientRequest.url}`)
     // intercept OPTIONS method
     if (clientRequest.method == 'OPTIONS') {
         setCorsHeaders(clientRequest, clientResponse)
@@ -75,13 +74,14 @@ const forwardRequest = (clientRequest, clientResponse) => {
             ? oauth.toHeader(oauth.authorize(requestData, token))
             : oauth.toHeader(oauth.authorize(requestData))
     }
-
+    if (debug) {
+        // eslint-disable-next-line no-console
+        console.log('serving:', requestOptions)
+    }
     const apiReq = request(requestOptions).on('error', function(e) {
         clientResponse.end(e)
     })
-    // .on('response', function(apiResp) {
-    //     setCorsHeaders(clientRequest, apiResp)
-    // })
+
     apiReq.pipefilter = (response, dest) => {
         setCorsHeaders(clientRequest, dest)
     }
@@ -102,19 +102,19 @@ const setCorsHeaders = (clientRequest, clientResponse) => {
     const origin = clientRequest.headers.origin
     if (allowedOrigins.indexOf(origin) > -1) {
         clientResponse.setHeader('Access-Control-Allow-Origin', origin)
+        // clientResponse.setHeader('Access-Control-Allow-Origin', '*')
+        clientResponse.setHeader(
+            'Access-Control-Allow-Methods',
+            'GET, POST, OPTIONS'
+        )
+        // If needed
+        clientResponse.setHeader(
+            'Access-Control-Allow-Headers',
+            'X-Requested-With,content-type'
+        )
+        // If needed
+        clientResponse.setHeader('Access-Control-Allow-Credentials', true)
     }
-    // clientResponse.setHeader('Access-Control-Allow-Origin', '*')
-    clientResponse.setHeader(
-        'Access-Control-Allow-Methods',
-        'GET, POST, OPTIONS'
-    )
-    // If needed
-    clientResponse.setHeader(
-        'Access-Control-Allow-Headers',
-        'X-Requested-With,content-type'
-    )
-    // If needed
-    clientResponse.setHeader('Access-Control-Allow-Credentials', true)
 }
 
 const port = process.env.PORT || 4000
