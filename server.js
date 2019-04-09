@@ -95,7 +95,8 @@ const setCorsHeaders = (clientRequest, clientResponse) => {
         'http://localhost:8081',
         'http://localhost:4000',
         'http://localhost:3000',
-        'http://lcl.erosnow.com:8080'
+        'http://lcl.erosnow.com:8080',
+        'http://dev.erosnow.com:8080'
     ]
     if (debug) {
         allowedOrigins = allowedOrigins.concat(localOrigins)
