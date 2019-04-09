@@ -79,7 +79,7 @@ const forwardRequest = (clientRequest, clientResponse) => {
         console.log('serving:', requestOptions)
     }
     const apiReq = request(requestOptions).on('error', function(e) {
-        clientResponse.end(e)
+        clientResponse.end(typeof e === 'object' ? JSON.stringify(e) : e)
     })
 
     apiReq.pipefilter = (response, dest) => {
@@ -94,7 +94,8 @@ const setCorsHeaders = (clientRequest, clientResponse) => {
         'http://localhost:8080',
         'http://localhost:8081',
         'http://localhost:4000',
-        'http://localhost:3000'
+        'http://localhost:3000',
+        'http://lcl.erosnow.com:8080'
     ]
     if (debug) {
         allowedOrigins = allowedOrigins.concat(localOrigins)
@@ -105,7 +106,7 @@ const setCorsHeaders = (clientRequest, clientResponse) => {
         // clientResponse.setHeader('Access-Control-Allow-Origin', '*')
         clientResponse.setHeader(
             'Access-Control-Allow-Methods',
-            'GET, POST, OPTIONS'
+            'GET, POST, PUT, DELETE, OPTIONS'
         )
         // If needed
         clientResponse.setHeader(
